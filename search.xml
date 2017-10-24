@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+    
+    <entry>
+      <title><![CDATA[Go語言基礎篇]]></title>
+      <url>/2017/10/24/go-language-basics/</url>
+      <content type="html"><![CDATA[<p>學程式先學基礎，就跟學武功先蹲馬步一樣，不容易出錯，出錯了也容易找到問題，所以就先從 Go 的基礎開始吧</p>
+<p>這篇筆記包含了套件(Packages)，變數(Variables)和函式(Functions)，原則上瞭解了這些項目，就能看懂別人寫的Go程式了，事不宜遲，我們就開始吧</p>
+<h2 id="套件-Packages"><a href="#套件-Packages" class="headerlink" title="套件(Packages)"></a>套件(Packages)</h2><p>在Go語言裡，可以把套件(Package)視為物件導向裡的類別(Class)，同時在同一個資料夾裡的所有go檔案，都會在第一行宣告<code>package xxx</code>，然後套件名稱則會使用該資料夾的名稱</p>
+<p>例如，我們在<code>/Users/papajames/go/src/hello</code>下面有三個go檔案，它們都會在第一行有著下面的程式碼</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> hello</div></pre></td></tr></table></figure>
+<p>那如果我們使用了不同的套件名稱的話，在建置時會看到下面的錯誤訊息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">can&apos;t load package: package hello: found packages hello (hello.go)</div><div class="line">and world (world.go) in /Users/papajames/go/src/hello</div></pre></td></tr></table></figure>
+<p>不過有個例外就是，假設我們需要建置一個可執行檔時，那就需要在go檔裡宣告套件main，同時在同一個檔案裡加上函式main，如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;&#125;</div></pre></td></tr></table></figure>
+<p>這樣在建置時，Go Tools就會幫我們建置一個可執行檔，然後檔名是所在資料夾的名稱</p>
+<h3 id="匯入-Imports"><a href="#匯入-Imports" class="headerlink" title="匯入(Imports)"></a>匯入(Imports)</h3><p>當我們想要使用別人寫好的套件時，就需要用到匯入(import)這個指示詞，我們可以用小括號一次匯入多個套件，如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> (</div><div class="line">    <span class="string">"fmt"</span></div><div class="line">    <span class="string">"math"</span></div><div class="line">)</div></pre></td></tr></table></figure>
+<p>也可以一個一個匯入，如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"><span class="keyword">import</span> <span class="string">"math"</span></div></pre></td></tr></table></figure>
+<p>官方的教學是建議使用第一個，一次匯入多個套件的語法</p>
+<h3 id="公用名稱-Exported-names"><a href="#公用名稱-Exported-names" class="headerlink" title="公用名稱(Exported names)"></a>公用名稱(Exported names)</h3><p>Exported names就字典翻譯來說，是＂導出的名稱＂，但因為我是學了物件導向幾多年了，所以更喜歡用＂公用名稱＂來解讀它</p>
+<p>但我們在一個套件裡宣告了變數跟函式時，Go用了一個很簡單的方式來決定它們的存取能力，成員名稱是以大寫的英文字母為開頭的話，表示它可以在套件以外的範圍存取，但如果成員名稱用小寫的英文字母為開頭的話，則它只能在套件內被存取，很簡單的表達方式，也表示我們在寫Go的程式時，不需要為變數跟函式指定存取修飾詞(public/protected/private)給它們了</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">hello</span><span class="params">()</span></span> &#123;&#125;</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">World</span><span class="params">()</span></span> &#123;&#125;</div></pre></td></tr></table></figure>
+<p>透過上面的程式碼，我們可以知道函式<code>hello()</code>只能在套件裡存取，等同於私有函式，而函式<code>World()</code>則可以在套件之外被存取，等同於公有函式</p>
+<h2 id="函式-Functions"><a href="#函式-Functions" class="headerlink" title="函式(Functions)"></a>函式(Functions)</h2><p>Go的函式是用func來宣告，同時接受零到多個參數，不過比較特別的是，參數型別是宣告在參數名稱之後，另外該函式有回傳值的話，則在最後加上回傳型別，如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(x <span class="keyword">int</span>, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</div><div class="line">  <span class="keyword">return</span> x + y</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>對於熟悉C#的我來說，真的是很特別的陳述式，想知道為什麼要這麼設計的人，可以參考這個連結，<a href="https://blog.golang.org/gos-declaration-syntax" target="_blank" rel="external">https://blog.golang.org/gos-declaration-syntax</a></p>
+<p>另外官方文件有提到另外一個更特別的陳述式，當有兩個以上的連續參數擁有相同的型別時，我們只需要在最後的連續參數宣告型別即可，所以可以把上面的程式碼改寫成</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</div><div class="line">  <span class="keyword">return</span> x + y</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>也太特別了吧，沒看過的人我想一時也不知道它在陳述什麼東西吧</p>
+<h3 id="多個結果-Multiple-results"><a href="#多個結果-Multiple-results" class="headerlink" title="多個結果(Multiple results)"></a>多個結果(Multiple results)</h3><p>Go支援一個函式可以同時回傳多個結果，範例如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">swap</span><span class="params">(x, y <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, <span class="keyword">string</span>)</span></span> &#123;</div><div class="line">  <span class="keyword">return</span> y, x</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">  a, b := swap(<span class="string">"hello"</span>, <span class="string">"world"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到當我們要一次回傳多個結果時，在宣告回傳型別時就定義多個型別，同時在回傳時就把要回傳的變數依照順序排好即可，另外在呼叫函式時，也把要接收的變數依序排好，這樣就能收到多個結果</p>
+<p>嘖嘖，這可是C# 7.0才有的功能呢</p>
+<h3 id="有名稱的回傳值-Named-return-values"><a href="#有名稱的回傳值-Named-return-values" class="headerlink" title="有名稱的回傳值(Named return values)"></a>有名稱的回傳值(Named return values)</h3><p>Go的回傳值是可以被命名的，如果我們使用了這個特性，那這些回傳值會在函式的一開始就會先被定義好，範例如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">split</span><span class="params">(sum <span class="keyword">int</span>)</span> <span class="params">(x, y <span class="keyword">int</span>)</span></span> &#123;</div><div class="line">  x = sum * <span class="number">4</span> / <span class="number">9</span></div><div class="line">  y = sum - x</div><div class="line">  <span class="keyword">return</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我們可以看到上面的<code>return</code>陳述式沒有包含任何一個有名稱的回傳值，這樣的方式官方稱為<strong>Naked Return</strong>，不過為了降低它對程式碼可讀性的影響，只建議用在短一點的函式，如上面這一個，長一點的函式就不適合了</p>
+<h2 id="變數-Variables"><a href="#變數-Variables" class="headerlink" title="變數(Variables)"></a>變數(Variables)</h2><p>在Go語言裡面，使用<code>var</code>來宣告一到多個變數，同時跟函式參數一樣，型別在名稱後面，連續參數相同型別的話只要在最後一個宣告即可，如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> a <span class="keyword">int</span>, b <span class="keyword">string</span></div><div class="line"><span class="keyword">var</span> c, d, e <span class="keyword">bool</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">  <span class="keyword">var</span> i <span class="keyword">int</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>變數分為套件範圍與函式範圍，有著存取範圍的限制，函式可以存取套件變數但不能存取另一個函式的變數，同時適用於公用名稱(Exported names)的規則</p>
+<p>另外變數的宣告可以包含初始值，每個變數都要有，同時如果有指定初始值的話，我們可以忽略變數的型別宣告，Go會幫我們從初始值找到變數的型別</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> a, b <span class="keyword">int</span> = <span class="number">1</span>, <span class="number">2</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">  <span class="keyword">var</span> c, d, e = <span class="literal">true</span>, <span class="literal">false</span>, <span class="string">"oh"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>透過上面的程式碼可以看到，Go幫我們宣告變數<code>c</code>和<code>d</code>的型別為<code>bool</code>，而變數<code>e</code>則為<code>string</code></p>
+<p>### 簡潔變數宣告(Short variable declarations)</p>
+<p>在函式裡，當變數型別為隱含型別可以被推論時，我們可以使用簡潔指定陳述式<code>:=</code>來取代<code>var</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">  <span class="keyword">var</span> a, b <span class="keyword">int</span> = <span class="number">1</span>, <span class="number">2</span></div><div class="line">  x := <span class="number">3</span></div><div class="line">  c, d, e := <span class="literal">true</span>, <span class="literal">false</span>, <span class="string">"oh"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>而在函式之外的話，簡潔指定陳述式<code>:=</code>是不被允許的</p>
+<p>### 基本型別(Basic types)</p>
+<p>Go的基本型別有</p>
+<ul>
+<li>bool</li>
+<li>string</li>
+</ul>
+<p>以下為數字型別</p>
+<ul>
+<li>int / int8 / int16 / int32 / int64</li>
+<li>uint / uint8 / uint16 / uint32 / uint64 / uintptr</li>
+<li>byte (與uint8相同)</li>
+<li>rune (與int32相同, 用來表示Unicode代碼位置)</li>
+<li>float32 / float64</li>
+<li>complex64 / complex128</li>
+</ul>
+<p>常見的就不多說明了，而<code>rune</code>算是個很特別的型別，它是用來儲存文字的Unicode代碼位置，至於<code>float32</code>與<code>float64</code>的區別，可以把它們依序視為<code>single</code>和<code>double</code>，至於<code>complex64</code>，<code>complex128</code>和<code>uintptr</code>的話，不是很清楚它們適用在什麼狀況下，未來有機會遇到再記下來吧</p>
+<p>另外<code>int</code>，<code>uint</code>和<code>uintptr</code>則會視所在的系統而有所不同，在32位元的系統下，它們的大小為32位元，而如果在64位元下，大小則為64位元</p>
+<p>官方文件裡有提到，一般來說當我們需要用到整數時，建議直接使用<code>int</code>就可以，除非有特殊需求，不然不需要特別指定有明確大小的整數或無符號整數的型別</p>
+<h3 id="預設值-Zero-values"><a href="#預設值-Zero-values" class="headerlink" title="預設值(Zero values)"></a>預設值(Zero values)</h3><p>當我們宣告變數但沒有給它們初始值時，Go會幫我們指定預設值，如下</p>
+<ul>
+<li>數字型別，指定<code>0</code></li>
+<li>布林型別，指定<code>false</code></li>
+<li>字串型別，指定空字串<code>&quot;&quot;</code></li>
+</ul>
+<h3 id="型別轉換"><a href="#型別轉換" class="headerlink" title="型別轉換"></a>型別轉換</h3><p>我們可以使用表達式<code>T(v)</code>將變數<code>v</code>轉換成型別<code>T</code>，如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> i <span class="keyword">int</span> = <span class="number">42</span></div><div class="line"><span class="keyword">var</span> f <span class="keyword">float64</span> = <span class="keyword">float64</span>(i)</div><div class="line"><span class="keyword">var</span> u <span class="keyword">uint</span> = <span class="keyword">uint</span>(f)</div></pre></td></tr></table></figure>
+<p>或者在函式裡，我們可以用更簡潔的陳述式</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">i := <span class="number">42</span></div><div class="line">f := <span class="keyword">float64</span>(i)</div><div class="line">u := <span class="keyword">uint</span>(f)</div></pre></td></tr></table></figure>
+<p>在Go語言裡，型別轉換需要明確指定型別，無法做到像其它語言的隱含型別轉換，例如JavaScript</p>
+<h3 id="型別推論-Type-inference"><a href="#型別推論-Type-inference" class="headerlink" title="型別推論(Type inference)"></a>型別推論(Type inference)</h3><p>當宣告變數但沒有明確宣告型別時，Go語言會幫我們從陳述式的右邊推論出適合的型別，如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> a <span class="keyword">int</span></div><div class="line">b := a        <span class="comment">// 型別為 int</span></div><div class="line">c := <span class="number">12</span>       <span class="comment">// 型別為 int</span></div><div class="line">d := <span class="number">1.2</span>      <span class="comment">// 型別為 float64</span></div><div class="line">e := <span class="number">1.2</span> + <span class="number">1i</span> <span class="comment">// 型別為complex128</span></div></pre></td></tr></table></figure>
+<h3 id="定數-Constants"><a href="#定數-Constants" class="headerlink" title="定數(Constants)"></a>定數(Constants)</h3><p>定數需要使用<code>const</code>來宣告，可以是字元，字串，布林值或數字，但不能使用<code>:=</code>語法，如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> Pi = <span class="number">3.14</span></div><div class="line"><span class="keyword">const</span> World = <span class="string">"世界"</span></div><div class="line"><span class="keyword">const</span> Truth = <span class="literal">true</span></div></pre></td></tr></table></figure>
+<h3 id="數字定數-Numeric-constants"><a href="#數字定數-Numeric-constants" class="headerlink" title="數字定數(Numeric constants)"></a>數字定數(Numeric constants)</h3><p>數字定數是高精度的值，任何沒有明確型別的數字定數會依照它的本文進行型別轉換，如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> x = <span class="number">1</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">needInt</span><span class="params">(a <span class="keyword">int</span>)</span></span> &#123;&#125;</div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">needFloat</span><span class="params">(b <span class="keyword">float64</span>)</span></span> &#123;&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">  needInt(x)   <span class="comment">// 轉換成int</span></div><div class="line">  needFloat(x) <span class="comment">// 轉換成float64</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="完成"><a href="#完成" class="headerlink" title="完成"></a>完成</h2><p>呼～完成了基礎的內容了，想來應該很多跟原本我們熟悉的程式語言有很多不一樣的地方吧，尤其像我熟悉C#的人，遇到這個還真的要好好的適應一下</p>
+<p>接下來將會進行流程控制的部份，一樣敬請期待啦</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Go </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Go </tag>
+            
+            <tag> Learning </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[為什麼我想學習 Go language]]></title>
+      <url>/2017/10/24/why-am-i-want-to-learn-go-language/</url>
+      <content type="html"><![CDATA[<p>在一個因綠際會之下，我接觸到了<a href="https://docs.gitlab.com/runner/" target="_blank" rel="external">GitLab Runner</a>，那個時候用的是Windows版，很妙的是，它只有一個執行檔，同時無需安裝Go或任何其它的函式庫就能執行，這真是太酷了。雖然有點肥大，以GitLab Runner的10.1版來說，執行檔的大小為46.7MB，不過以現在的網速來說，這樣的大小似乎就還可以接受。上網查了一下它有沒有支援跨平台的開發，發現到它只需要開發一次，就可以編譯不同平台的執行檔，真的是太方便了，這樣於一個長期使用.NET開發系統的人來說，真的是難以想像啊</p>
+<h2 id="前置作業"><a href="#前置作業" class="headerlink" title="前置作業"></a>前置作業</h2><p>接下來，就開始了我的Go學習之旅，不過在開始之前，總是要先安裝好開發環境，在IDE的選擇上，Go官網提供了四個選項, <strong>vim</strong> / <strong>Visual Studio Code</strong> / <strong>Gogland</strong> / <strong>Atom</strong>，詳細內容可以參考這個連結</p>
+<ul>
+<li><a href="https://golang.org/doc/editors.html" target="_blank" rel="external">https://golang.org/doc/editors.html</a></li>
+</ul>
+<p>我對VS Code比較熟悉，同時也是跨平台的編輯器，另外都拿它來編輯markdown，所以就直接用它了，下載連結如下</p>
+<ul>
+<li><a href="https://code.visualstudio.com/download" target="_blank" rel="external">https://code.visualstudio.com/download</a></li>
+</ul>
+<p>另外還需要安裝Go Extension，連結如下</p>
+<ul>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=lukehoban.Go" target="_blank" rel="external">https://marketplace.visualstudio.com/items?itemName=lukehoban.Go</a></li>
+</ul>
+<p>最後就是Go Tools</p>
+<ul>
+<li><a href="https://golang.org/doc/install" target="_blank" rel="external">https://golang.org/doc/install</a></li>
+</ul>
+<h2 id="測試我們的安裝"><a href="#測試我們的安裝" class="headerlink" title="測試我們的安裝"></a>測試我們的安裝</h2><p>安裝好了之後，我們可以用個小程式來測試一下我們的安裝有沒有正確</p>
+<p>首先，我們先建立工作區(workspace)資料夾，<code>%USERPROFILE%/go</code>，接著再工作區裡建立資料夾<code>src/hello</code>，然後建立一個檔案，檔名為<code>hello.go</code>，並填入下面的程式碼</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">    fmt.Printf(<span class="string">"hello, world\n"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接著用下面的指令進行建置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">C:\&gt; <span class="built_in">cd</span> %USERPROFILE%\go\src\hello</div><div class="line">C:\Users\papajames\src\hello&gt; go build</div></pre></td></tr></table></figure>
+<p>上面的指令會建置出一個執行檔，檔名為<code>hello.exe</code>，接著執行它</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">C:\Users\papajames\src\hello&gt; hello.exe</div><div class="line">hello, world</div></pre></td></tr></table></figure>
+<p>如果我們能看到 <strong>hello, world</strong> 的話, 就表示 Go Tools 的安裝順利的完成了</p>
+<p>最後，我會開始邊學邊筆記，再把自己的筆記整理出來後發佈上來，敬請期待</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Go </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Go </tag>
+            
+            <tag> Learning </tag>
+            
+        </tags>
+        
+    </entry>
+    
+  
+  
+</search>
